@@ -1,10 +1,15 @@
 #pgzero
 
 """
-Version actual: [M7.L1 · Actividad #3: "Bucles anidados" ]
-Objetivo del ejercicio: Implementar bucles for anidados que dibujen nuestro mapa
+Version actual: [M7.L1 · Actividad #5: "Atributos" ]
+Objetivo del ejercicio: Familiarizarnos con los atributos agregand salud y ataque a nuestro personaje
 
-NOTA: Este ejercicio resuelve también la actividad #4, pero por conveniencia se explican ambos conceptos juntos
+NOTA: La actividad #4 fue resuelta con el código de la actividad #3
+
+Pasos:
+#1: Creamos Actor() personaje
+#2: Le damos sus atributos
+#3: Agregamos nuestra función draw()
 
 Kodland: https://kenney.nl/assets/roguelike-caves-dungeons
 packs de assets: https://kenney.nl/assets/series:Tiny?sort=update
@@ -27,6 +32,15 @@ HEIGHT = celda.height * cant_celdas_alto  # Alto de la ventana (en píxeles)
 
 TITLE = "Rogue-like: Mazmorras" # Título de la ventana de juego
 FPS = 30 # Número de fotogramas por segundo
+
+# Personaje:
+
+personaje = Actor("stand")
+# Nota: si quieren llevar control de la vida, pueden crear dos atributos: "salud_max" y "salud_actual"
+personaje.salud = 100
+# Nota: si quieren hacer más interesante el combate pueden agregar atributos para el valor mínimo de ataque y el máximo
+#       (también pueden implementar un sistema de miss y critic hits)
+personaje.ataque = 5
 
 ################## MAPAS ##################
 
@@ -84,7 +98,13 @@ def dibujar_mapa(mapa):
         huesos.top = huesos.height * fila
         huesos.draw()
 
-""" >>> Probamos dibujar mapa <<< """
+""" #####################
+   # FUNCIONES PG-ZERO #
+  #####################  """
 
-def update(dt):
-    dibujar_mapa(mapa_actual)
+def draw():
+  dibujar_mapa(mapa_actual)
+  personaje.draw()
+    
+  screen.draw.text(("PS: " + str(personaje.salud)), midright=((WIDTH - 15), 14), color = 'white', fontsize = 16)
+  screen.draw.text(("ATK: " + str(personaje.ataque)), midright=((WIDTH - 15), 36), color = 'white', fontsize = 16)
