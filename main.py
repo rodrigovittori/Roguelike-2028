@@ -1,17 +1,17 @@
 #pgzero
+import random
 
 """
-Version actual: [M7.L1 · Actividades Extra]
-Objetivo del ejercicio: Ampliar mapa, agregar fila extra y reubicar datos en pantalla
-
-Nota: Nuestro código ya cumple la primer actividad extra
+Version actual: [M7.L2 · Actividad #1: "Generando enemigos"]
+Objetivo del ejercicio: Implementar un bucle que nos permita spawnear 5 enemigos
 
 Pasos:
-#1: Modificamos nuestro mapa para que sea de 9x9 casillas, más una fila extra para mostrar los atributos del jugador
-#2: Modificamos nuestros mapas
-#3: Agregamos el color de relleno de la pantalla en nuestro draw()
-#4: Modificamos los screen.draw.text()
-#5: Modificamos los límites de restricción de movimiento
+#1: Importamos la librería random
+#2: creamos una constante que determine la cantidad de enemigos a spawnear (5)
+#3: Creamos un bucle FOR donde calculamos la posición, la validamos, creamos los actores enemigos y les asignamos su salud y ataque
+#4: Agregamos un bucle FOR en nuestro draw() para mostrar los enemigos en pantalla
+
+Nota: pronto calcularemos las colisiones contra ellos
 
 Kodland: https://kenney.nl/assets/roguelike-caves-dungeons
 packs de assets: https://kenney.nl/assets/series:Tiny?sort=update
@@ -43,6 +43,15 @@ personaje.salud = 100
 # Nota: si quieren hacer más interesante el combate pueden agregar atributos para el valor mínimo de ataque y el máximo
 #       (también pueden implementar un sistema de miss y critic hits)
 personaje.ataque = 5
+
+######################################################
+
+# Variables:
+CANT_ENEMIGOS_A_SPAWNEAR = 5
+
+# Listas:
+lista_enemigos = []
+
 
 ################## MAPAS ##################
 
@@ -107,6 +116,33 @@ def dibujar_mapa(mapa):
         huesos.top = huesos.height * fila
         huesos.draw()
 
+###########################################
+
+"""  #####################
+    # FUNCIONES PROPIAS #
+   #####################   """
+
+# To-Do: migrar a función
+for enemigo_a_spawnear in range(CANT_ENEMIGOS_A_SPAWNEAR):
+    x = (random.randint(2, cant_celdas_ancho - 2) * celda.width)
+    y = (random.randint(2, cant_celdas_alto - 3) * celda.height)
+    # To-Do: Agregar variable para determinar tipo de enemigo a spawnear
+    # To-do: agregar una posicion especifica para que spawnee el jugador
+    
+    nvo_enemigo = Actor("enemy", topleft = (x, y))
+
+    # Checkeamos que no se repitan las coordenadas
+    posicion_duplicada = False
+    for enemigo in lista_enemigos:
+        if (nvo_enemigo.pos == enemigo.pos): # Si la posición de nvo_enemigo es IGUAL a la de CUALQUIER enemigo en la lista,
+            posicion_duplicada = True        # Actualizamos la flag que indica que la posicion está duplicada
+    if (posicion_duplicada):
+        enemigo_a_spawnear -= 1              # restamos 1 al iterando (del for ppal)
+    else:
+        nvo_enemigo.salud = random.randint(10, 20)
+        nvo_enemigo.ataque = random.randint(5, 10)
+        lista_enemigos.append(nvo_enemigo)
+
 """ #####################
    # FUNCIONES PG-ZERO #
   #####################  """
@@ -114,8 +150,12 @@ def dibujar_mapa(mapa):
 def draw():
   screen.fill("#2f3542") # rgb = (47, 53, 66)
   dibujar_mapa(mapa_actual)
-  personaje.draw()
+
+  for enemigo in lista_enemigos:
+      enemigo.draw()
     
+  personaje.draw()
+
   screen.draw.text(("Salud: " + str(personaje.salud)), midleft=(30, (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
   screen.draw.text(("Ataque: " + str(personaje.ataque)), midright=((WIDTH - 30), (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
 
