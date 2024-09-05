@@ -2,12 +2,15 @@
 import random
 
 """
-Version actual: [M7.L2 · Actividad #3: "Procesamiento de colisiones"]
-Objetivo: Eliminar enemigos cuya salud sea menor o igual a 0 puntos
+Version actual: [M7.L2 · Actividad #4: "Aparición de las bonificaciones"]
+Objetivo: Agregar mecánicas de bonus, su spawn, mostrarlas por pantalla
+Próximo:  Agregar sus colisiones y efectos
 
 Pasos:
-#1: Crear una variable donde almacenemos la posición del jugador ANTES de moverse, en caso de colisión, lo regresamos a esas coordenadas
-#2: Agregar una condición donde, si hubo colisión Y la salud del enemigo baja a 0 o un valor negativo, lo eliminamos
+#1: Crear una nueva lista para los bonus
+#2: Durante la creación de enemigos vamos a asignarles un valor de bonus que dropearán tras ser derrotados
+#3: Agregar una condición en draw para dibujar los bonus en pantalla
+#4: Al derrotar a un enemigo, spawnearemos el bonus que se le asignó al crearlo
 
 Nota: TODAVÍA NO HAY GAME OVER
 
@@ -50,7 +53,7 @@ colision = -2 # ¿XQ -2 como valor inicial?: porque es un valor que NO nos puede
 
 # Listas:
 lista_enemigos = []
-
+lista_bonus = []
 
 ################## MAPAS ##################
 
@@ -140,6 +143,7 @@ for enemigo_a_spawnear in range(CANT_ENEMIGOS_A_SPAWNEAR):
     else:
         nvo_enemigo.salud = random.randint(10, 20)
         nvo_enemigo.ataque = random.randint(5, 10)
+        nvo_enemigo.bonus = random.randint(0, 2) # 0: nada, 1: curacion, 2: +atk
         lista_enemigos.append(nvo_enemigo)
 
 """ #####################
@@ -150,6 +154,9 @@ def draw():
   screen.fill("#2f3542") # rgb = (47, 53, 66)
   dibujar_mapa(mapa_actual)
 
+  for bonus in lista_bonus:
+      bonus.draw()
+      
   for enemigo in lista_enemigos:
       enemigo.draw()
     
@@ -196,8 +203,22 @@ def on_key_down(key):
       personaje.salud -= enemigo_atacado.ataque
 
       if (enemigo_atacado.salud <= 0):
+
+          """ 1º Chequeamos si tiene bonus: """
+          if enemigo_atacado.bonus == 1:
+            # Spawnear curacion
+            nvo_bonus = Actor("heart", enemigo_atacado.pos)
+            lista_bonus.append(nvo_bonus)
+
+          elif enemigo_atacado.bonus == 2:
+            # Spawnear bonus de ataque
+            nvo_bonus = Actor("sword", enemigo_atacado.pos)
+            lista_bonus.append(nvo_bonus)
+
+          """ 2º Lo eliminamos """
           # Método #1:
           # lista_enemigos.pop(colision)
           # Método #2:
           lista_enemigos.remove(enemigo_atacado)
           # To-do: agregar pila de huesitos en la casilla donde derrote al esqueleto
+          
