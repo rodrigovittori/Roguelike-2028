@@ -2,14 +2,16 @@
 import random
 
 """
-Version actual: [M7.L2 · Actividad #5: "Recolectando bonificaciones"]
-Objetivo: Agregar colisiones de los bonus e implementamos sus efectos
-Próximo:  (Actividad extra) Game over
+Version actual: [M7.L2 · Actividades Adicionales]
+Objetivo: Agregar condiciones de fin de juego
+Próximo:  Cargarlo al HUB
 
 Pasos:
-#1: Crear una nueva lista para los bonus
+#1: Crear nuevas variables: una que controla el modo_actual
+#2: Crear función que compruebe el fin de juego
+#3: Llamar a la función que comprueba el fin de juego después de cada movimiento
+#4: Modificar nuestro draw() para que en caso de "transición" nos muestre un mensaje indicando lo siguiente
 
-Nota: TODAVÍA NO HAY GAME OVER
 
 Kodland: https://kenney.nl/assets/roguelike-caves-dungeons
 packs de assets: https://kenney.nl/assets/series:Tiny?sort=update
@@ -18,9 +20,11 @@ packs de assets: https://kenney.nl/assets/series:Tiny?sort=update
 
 RESOLVER LOS TO-DO
 UNIFICAR LAS COLISIONES
-AGREGAR GAME-OVER
 AGREGAR TIPOS DE ENEMIGOS
+AGREGAR REINICIAR JUEGO
+AGREGAR OTROS MODOS (EJ: Tienda y/o Seleccion de héroe y/o HUB de mundo y/o menu)
 AGREGAR QUE LA SALUD Y EL ATK DE LOS ENEMIGOS AUMENTE ENTRE CADA SPAWN (P/EVITAR PWR CREEP)
+AGREGAR PANTALLAZO STATS FIN DE JUEGO: (Personaje, atk, salud)
 """
 
 # Ventana de juego hecha de celdas
@@ -55,6 +59,9 @@ personaje.ataque = 5
 # Variables:
 CANT_ENEMIGOS_A_SPAWNEAR = 5
 colision = -2 # ¿XQ -2 como valor inicial?: porque es un valor que NO nos puede devolver collidelist.
+modo_actual = "juego"
+partida_finalizada = False # To-do: agregar variable para la habitación (no la partida)
+resultado_partida = "jugando" # valores: "jugando"/"victoria"/"derrota"
 
 # Listas:
 lista_enemigos = []
@@ -151,30 +158,56 @@ for enemigo_a_spawnear in range(CANT_ENEMIGOS_A_SPAWNEAR):
         nvo_enemigo.bonus = random.randint(0, 2) # 0: nada, 1: curacion, 2: +atk
         lista_enemigos.append(nvo_enemigo)
 
+def comprobar_fin_de_juego():
+    global modo_actual, partida_finalizada, resultado_partida
+    
+    if (personaje.salud <= 0): # El personaje fue derrotado
+        modo_actual = "transicion"
+        partida_finalizada = True
+        resultado_partida = "derrota"
+
+    elif ((lista_enemigos == []) and (personaje.salud > 0)): # NOTA: tener en cuenta si se modifica el juego (bonus, transciciones, etc)
+        modo_actual = "transicion"
+        partida_finalizada = True
+        resultado_partida = "victoria"
+
 """ #####################
    # FUNCIONES PG-ZERO #
   #####################  """
 
 def draw():
-  screen.fill("#2f3542") # rgb = (47, 53, 66)
-  dibujar_mapa(mapa_actual)
-
-  for bonus in lista_bonus:
-      bonus.draw()
-      
-  for enemigo in lista_enemigos:
-      enemigo.draw()
+    if (modo_actual == "juego"):
+        screen.fill("#2f3542") # rgb = (47, 53, 66)
+        dibujar_mapa(mapa_actual)
     
-  personaje.draw()
+        for bonus in lista_bonus:
+            bonus.draw()
+          
+        for enemigo in lista_enemigos:
+            enemigo.draw()
+        
+        personaje.draw()
+    
+        screen.draw.text(("Salud: " + str(personaje.salud)), midleft=(30, (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
+        screen.draw.text(("Ataque: " + str(personaje.ataque)), midright=((WIDTH - 30), (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
 
-  screen.draw.text(("Salud: " + str(personaje.salud)), midleft=(30, (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
-  screen.draw.text(("Ataque: " + str(personaje.ataque)), midright=((WIDTH - 30), (HEIGHT - int(celda.height/2))), color = 'white', fontsize = 24)
-
+    elif (modo_actual == "transicion"):
+        screen.fill("#2f3542")  # rgb = (47, 53, 66)
+        if (partida_finalizada):
+            if (resultado_partida == "victoria"):
+                screen.draw.text("¡Ganaste!", center=(WIDTH/2, HEIGHT/3), color = 'white', fontsize = 46)
+                screen.draw.text("Presiona [Espacio] para reiniciar", center=(WIDTH/2, HEIGHT/3 *2), color = 'white', fontsize = 24)
+            else:
+                screen.draw.text("¡Perdiste!", center=(WIDTH/2, HEIGHT/3), color = 'white', fontsize = 46)
+                screen.draw.text("Presiona [Espacio] para reiniciar", center=(WIDTH/2, HEIGHT/3 *2), color = 'white', fontsize = 24)
+        else:
+            # Partida NO-finalizada
+            screen.draw.text("Entrando a la Sala: [NEXT]", center=(WIDTH/2, HEIGHT/3), color = 'white', fontsize = 46)
+            screen.draw.text("Presiona [Espacio] para reiniciar", center=(WIDTH/2, HEIGHT/3 *2), color = 'white', fontsize = 24)
+    
 def on_key_down(key):
 
   global colision
-
-  # To-do: porgramar victoria (eliminar a todos los enemigos) y derrota (personaje.salud <= 0)
   
   pos_previa = personaje.pos # Posición previa a pulsar la tecla
   
@@ -241,5 +274,7 @@ def on_key_down(key):
               elif (bonus.image == "sword"):
                   personaje.ataque += 5
               lista_bonus.remove(bonus)
+
+  comprobar_fin_de_juego()
     
           
