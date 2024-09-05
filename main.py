@@ -2,20 +2,25 @@
 import random
 
 """
-Version actual: [M7.L2 · Actividad #4: "Aparición de las bonificaciones"]
-Objetivo: Agregar mecánicas de bonus, su spawn, mostrarlas por pantalla
-Próximo:  Agregar sus colisiones y efectos
+Version actual: [M7.L2 · Actividad #5: "Recolectando bonificaciones"]
+Objetivo: Agregar colisiones de los bonus e implementamos sus efectos
+Próximo:  (Actividad extra) Game over
 
 Pasos:
 #1: Crear una nueva lista para los bonus
-#2: Durante la creación de enemigos vamos a asignarles un valor de bonus que dropearán tras ser derrotados
-#3: Agregar una condición en draw para dibujar los bonus en pantalla
-#4: Al derrotar a un enemigo, spawnearemos el bonus que se le asignó al crearlo
 
 Nota: TODAVÍA NO HAY GAME OVER
 
 Kodland: https://kenney.nl/assets/roguelike-caves-dungeons
 packs de assets: https://kenney.nl/assets/series:Tiny?sort=update
+
+>> TAREAS:
+
+RESOLVER LOS TO-DO
+UNIFICAR LAS COLISIONES
+AGREGAR GAME-OVER
+AGREGAR TIPOS DE ENEMIGOS
+AGREGAR QUE LA SALUD Y EL ATK DE LOS ENEMIGOS AUMENTE ENTRE CADA SPAWN (P/EVITAR PWR CREEP)
 """
 
 # Ventana de juego hecha de celdas
@@ -169,6 +174,8 @@ def on_key_down(key):
 
   global colision
 
+  # To-do: porgramar victoria (eliminar a todos los enemigos) y derrota (personaje.salud <= 0)
+  
   pos_previa = personaje.pos # Posición previa a pulsar la tecla
   
   if ((keyboard.right or keyboard.d) and (personaje.x < (WIDTH - celda.width * 2))):
@@ -187,9 +194,10 @@ def on_key_down(key):
   elif ((keyboard.up or keyboard.w) and (personaje.y > (celda.height * 2))):
         personaje.y -= celda.height
 
+
+  """ #################>>> COLISIONES CON ENEMIGOS <<<################# """
+  
   # To-do: migrar a una funcion
-  # To-do: eliminar a los enemigos que no tengan más salud
-  # To-do: porgramar victoria (eliminar a todos los enemigos) y derrota (personaje.salud <= 0)
   # To-do: evitar que el personaje pueda ingresar a una casilla ocupada
     
   colision = personaje.collidelist(lista_enemigos)
@@ -221,4 +229,17 @@ def on_key_down(key):
           # Método #2:
           lista_enemigos.remove(enemigo_atacado)
           # To-do: agregar pila de huesitos en la casilla donde derrote al esqueleto
+
+  else: # Si NO hay colisión con enemigo:
+      
+      """ >>> COLISIONES CON BONUS <<< """
+      for bonus in lista_bonus:
+          if personaje.colliderect(bonus):
+              # Si hubo colisión contra un bonus:
+              if (bonus.image == "heart"):
+                  personaje.salud += 15
+              elif (bonus.image == "sword"):
+                  personaje.ataque += 5
+              lista_bonus.remove(bonus)
+    
           
